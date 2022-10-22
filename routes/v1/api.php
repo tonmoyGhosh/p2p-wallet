@@ -4,6 +4,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Api\v1\LoginController;
 use App\Http\Controllers\Api\v1\LogoutController;
+use App\Http\Controllers\Api\v1\TransactionController;
 
 /*
 |--------------------------------------------------------------------------
@@ -20,6 +21,9 @@ Route::post('login', [LoginController::class, 'login']);
 
 Route::group(['middleware' => ['auth:api']], function ()
 {   
+    Route::get('getLoginUserInfo', [TransactionController::class, 'getLoginUserInfo']);
+    Route::get('getUserList', [TransactionController::class, 'getUserList']);
+    Route::post('sendMoney', [TransactionController::class, 'sendMoney']);
     Route::get('logout', [LogoutController::class, 'logout']);
     
 });
