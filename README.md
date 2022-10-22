@@ -1,7 +1,7 @@
-## Instructions For Run Project
+## Instructions To Run App
 
-- Clone project (https://github.com/tonmoyGhosh/p2p-wallet.git).
-- run this commands.
+- Clone app https://github.com/tonmoyGhosh/p2p-wallet.git.
+- Run this commands.
     - composer install
     - php artisan migrate
     - php artisan db:seed
