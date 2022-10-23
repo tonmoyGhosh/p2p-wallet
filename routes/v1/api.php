@@ -24,6 +24,7 @@ Route::group(['middleware' => ['auth:api']], function ()
     Route::get('getLoginUserInfo', [TransactionController::class, 'getLoginUserInfo']);
     Route::get('getUserList', [TransactionController::class, 'getUserList']);
     Route::post('sendMoney', [TransactionController::class, 'sendMoney']);
+    Route::get('statsReport', [TransactionController::class, 'statsReport']);
     Route::get('logout', [LogoutController::class, 'logout']);
     
 });

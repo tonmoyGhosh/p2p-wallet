@@ -8,6 +8,6 @@ class StatsReportController extends Controller
 {
     public function statsReport()
     {
-        return 'stats report';
+        return view('stats-report');
     }
 }

@@ -142,4 +142,48 @@ class TransactionController extends Controller
         } 
 
     }
+
+    public function statsReport()
+    {   
+        // most conversion data
+        $mostUsedConversion = User::join('transactions', 'transactions.send_user_id', 'users.id')
+                                    ->select('users.id', 'users.name', 'users.email', 
+                                    DB::raw('round(SUM(transactions.convert_amount)) as total_convert_amount'))
+                                    ->where('transactions.status', 'Success')
+                                    ->groupBy('users.id')
+                                    ->orderBy('total_convert_amount', 'DESC')      
+                                    ->limit(1)
+                                    ->first();
+
+        // user wise total converted amount data
+        $userTotalCovertAmount = User::join('transactions', 'transactions.send_user_id', 'users.id')
+                                        ->select('users.id', 'users.name', 'users.email', 
+                                        DB::raw('round(SUM(transactions.convert_amount)) as total_convert_amount'))
+                                        ->where('transactions.status', 'Success')
+                                        ->groupBy('users.id')
+                                        ->orderBy('total_convert_amount', 'DESC')
+                                        ->get();
+
+        // user wise third highest amount data
+        $userThirdHighestAmount = DB::select(DB::raw("SELECT   send_user_id as user_id, (
+                                        SELECT   sending_amount
+                                        FROM     transactions t2
+                                        WHERE    t2.send_user_id = t1.send_user_id
+                                        ORDER BY sending_amount DESC
+                                        LIMIT    2, 1
+                                    ) as third_highest_amount, t3.name as user_name, t3.email as user_email
+                                    FROM  transactions t1
+                                    JOIN users as t3 ON t3.id = t1.send_user_id
+                                    GROUP BY send_user_id"));
+
+        $response = [
+            'success'                => true,
+            'mostUsedConversion'     => ($mostUsedConversion) ? $mostUsedConversion : null,
+            'userTotalCovertAmount'  => ($userTotalCovertAmount) ? $userTotalCovertAmount : null,
+            'userThirdHighestAmount' => ($userThirdHighestAmount) ? $userThirdHighestAmount : null
+            
+        ];
+
+        return response()->json($response);
+    }
 }

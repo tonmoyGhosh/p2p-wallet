@@ -9,28 +9,33 @@
 
 ## API End Points
 
-- Login Api
+- Login API
     - {base_url}/api/v1/login
     - Type: POST
     - Required: email
     - Required: password
 
-- Login User Info Api
+- Login User Info API
     - {base_url}/api/v1/getLoginUserInfo
     - Type: GET
     - Required: apiToken (apiToken assigned to each API account used to authenticate with the API)
 
-- Amount Sending User Lists Api
+- Amount Sending User Lists API
     - {base_url}/api/v1/getUserList
     - Type: GET
     - Required: apiToken (apiToken assigned to each API account used to authenticate with the API)
 
-- Send Amount P2P Api
+- Send Amount P2P API
     - {base_url}/api/v1/sendMoney
     - Type: POST
     - Required: apiToken (apiToken assigned to each API account used to authenticate with the API)
     - Required: receive_user_id
     - Required: amount
+
+- Stats Report API
+    - {base_url}/api/v1/statsReport
+    - Type: GET
+    - Required: apiToken (apiToken assigned to each API account used to authenticate with the API)
 
 - {base_url}/api/v1/logout
     - Type: GET
