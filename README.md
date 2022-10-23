@@ -4,10 +4,11 @@
 - Run this commands.
     - composer install
         - After run composer install, if occured php version issue then run -> composer install --ignore-platform-reqs
-    - php artisan key:generate
+    - Change .env file with db credentials
     - php artisan migrate
     - php artisan db:seed
     - php artisan passport:install
+    - php artisan key:generate
 
 ## API End Points
 
