@@ -11,7 +11,7 @@ class Transaction extends Model
     use HasFactory;
 
     protected $fillable = [
-        'send_user_id', 'receive_user_id', 'sending_amount', 'current_rate', 'convert_amount', 'transaction_date'
+        'send_user_id', 'receive_user_id', 'sending_amount', 'current_rate', 'convert_amount', 'transaction_date', 'status', 'log'
     ];
 
     public function users()

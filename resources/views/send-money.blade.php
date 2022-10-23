@@ -4,7 +4,66 @@
 
 <div class="container">
 
+<style>
+
+.preloader {
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    position: fixed;
+    background: rgba(34, 34, 34, 0.47);
+    z-index: 1000;
+}
+.preloader_inner {
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    position: absolute;
+    background: rgb(34 34 34 / 15%);
+    z-index: 1000;
+}
+.overlay__inner {
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    position: absolute;
+}
+.overlay__content {
+  left: 50%;
+  position: absolute;
+  top: 50%;
+  transform: translate(-50%, -50%);
+}
+.spin {
+    width: 75px;
+    height: 75px;
+    display: inline-block;
+    border-width: 2px;
+    border-color: rgba(255, 255, 255, 0.05);
+    border-top-color: #fff;
+    animation: spin 1s infinite linear;
+    border-radius: 100%;
+    border-style: solid;
+}
+@keyframes spin {
+ 100% {
+    transform: rotate(360deg);
+ }
+}
+
+</style>
+
   @include('master/menu')
+
+  <!-- loader-->
+  <div class="preloader" style="display: none">
+        <div class="overlay__inner">
+            <div class="overlay__content"><span class="spin"></span></div>
+        </div>
+    </div>
 
   <br><br>
 
@@ -33,6 +92,7 @@
 
     <div class="form-group">        
         <div class="col-sm-offset-2 col-sm-10">
+            <p id="invalidMsg" style="color: red"></p>
             <button type="button" class="btn btn-default" id="submit">Submit</button>
         </div>
     </div>
@@ -47,14 +107,11 @@
 
 <script>
 
-    console.log(window.localStorage.getItem('apiToken'));
-
     if(!window.localStorage.getItem('apiToken'))
     {   
         window.location = "{{ route('login') }}";
     }
 
-    
     $(document).ready(function() 
     {   
         // get api token from local storage
@@ -121,6 +178,8 @@
 
     $('#submit').click(function (e)
     {   
+        $('.preloader').show();
+
         // get api token from local storage
         apiToken = window.localStorage.getItem('apiToken');
         
@@ -138,6 +197,8 @@
             dataType: 'json',
             success: function (data)
             {   
+                $('.preloader').hide();
+
                 $('#receive_user_id_msg').html('');
                 $('#amount_msg').html('');
             
@@ -150,14 +211,27 @@
                 }
                 if(data.success == true)
                 {   
-                    
-                    //    window.location = "{{ route('dashboard') }}";
+                    $('.preloader').hide();
+                    window.location = "{{ route('send-money') }}";
+                }
+                if(data.success == false)
+                {   
+                    $('.preloader').hide();
+                    if(data.message)
+                        $('#invalidMsg').html(data.message);
                 }
                 
             },
             error: function (err)
-            {
-                alert('Something went wrong, try again');
+            {   
+                if(err.status == 401)
+                {    
+                    alert('Your session is time out, logout now & log in again');
+                }
+                else
+                {
+                    alert('Something went wrong, try again');
+                }
             }
         });
 

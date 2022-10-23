@@ -11,6 +11,7 @@ use App\Models\Transaction;
 use Validator;
 use Auth;
 use DB;
+use Carbon\Carbon;
 
 class TransactionController extends Controller
 {   
@@ -59,23 +60,81 @@ class TransactionController extends Controller
 
             $fromUserInfo = User::with('wallet')->find(Auth::user()->id);
             $toUserInfo = User::with('wallet')->find($request->receive_user_id);
+            $sendingAmount = ($request->amount) ? $request->amount : '';
 
-            $currentCurrency = $fromUserInfo->wallet->currency;
-            $convertCurrency = $toUserInfo->wallet->currency;
-            $sendingAmount = $request->amount;
-            
-            $convertCurrencyApiResponse = $CurrencyRateCalculation->rateCalculation($currentCurrency, $convertCurrency, $sendingAmount);
-
-            DB::commit();
-
-            $response = [
-                'success'    => true,
-                'message'   => 'Your money transfer successfully'
-            ];
+            if($fromUserInfo && $toUserInfo && $sendingAmount)
+            {
+                if($fromUserInfo->wallet->amount < $sendingAmount)
+                {
+                    $response = [
+                        'success'    => false,
+                        'message'   => 'Your do not have efficient balance to send money, check your wallet balance'
+                    ];
     
-            return response()->json($response);
+                    return response()->json($response);
+                }
+    
+                $currentCurrency = $fromUserInfo->wallet->currency;
+                $convertCurrency =  $toUserInfo->wallet->currency;
+                
+                $convertCurrencyApiResponse = $CurrencyRateCalculation->rateCalculation($currentCurrency, $convertCurrency, $sendingAmount);
 
+                // store transaction data in db
+                if($convertCurrencyApiResponse->success)
+                {   
+                    $transaction = new Transaction;
+                    $transaction->send_user_id = $fromUserInfo->id;
+                    $transaction->receive_user_id = $toUserInfo->id;
+                    $transaction->sending_amount = $sendingAmount;
+                    $transaction->current_rate = $convertCurrencyApiResponse->info->rate;
+                    $transaction->convert_amount = round($convertCurrencyApiResponse->result, 2);
+                    $transaction->transaction_date = Carbon::today()->toDateString();
+                    $transaction->status = 'Success';
+                    $transaction->save();
+    
+                
+                    $wallet = Wallet::where('user_id', $fromUserInfo->id)->first();
+                    $wallet->amount = $wallet->amount - $sendingAmount;
+                    $wallet->update();
+                    
+                    $transactionStatus = true;
+                }
+                // API error exception handle
+                else
+                {       
+                    $transaction = new Transaction;
+                    $transaction->send_user_id = $fromUserInfo->id;
+                    $transaction->receive_user_id = $toUserInfo->id;
+                    $transaction->sending_amount = 0;
+                    $transaction->current_rate = 0;
+                    $transaction->convert_amount = 0;
+                    $transaction->transaction_date = Carbon::today()->toDateString();
+                    $transaction->status = 'Failed';
+                    $transaction->log = $convertCurrencyApiResponse->error->info;
+                    $transaction->save();
+
+                    $transactionStatus = false;
+                }
+                
+                DB::commit();
+    
+                $response = [
+                    'success'    => $transactionStatus,
+                    'message'   => ($transactionStatus) ? 'Your money transfer successfully' : 'This is request is not valid'
+                ];
         
+                return response()->json($response);
+            }
+            else
+            {
+                $response = [
+                    'success'    => false,
+                    'message'   => 'This is request is not valid'
+                ];
+        
+                return response()->json($response);
+            }
+
         }
         catch (\Exception $e) 
         {
