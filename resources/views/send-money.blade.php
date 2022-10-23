@@ -201,6 +201,7 @@
 
                 $('#receive_user_id_msg').html('');
                 $('#amount_msg').html('');
+                $('#invalidMsg').html('');
             
                 if(data.errors)
                 {   
