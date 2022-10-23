@@ -95,11 +95,15 @@
                     // generate user wise 3rd highest amount report
                     $.each(data.userThirdHighestAmount, function( key, value ) 
                     {   
-                        addTableData = `<tr>`;
-                        addTableData += `<td> ${value.user_name} </td> <td> ${value.user_email} </td> <td> ${value.third_highest_amount} </td>`;
-                        addTableData += `</tr>`;
+                        if(value.third_highest_amount)
+                        {
+                            addTableData = `<tr>`;
+                            addTableData += `<td> ${value.user_name} </td> <td> ${value.user_email} </td> <td> ${value.third_highest_amount} </td>`;
+                            addTableData += `</tr>`;
 
-                        $('#userThirdHighestAmount').append(addTableData);
+                            $('#userThirdHighestAmount').append(addTableData);
+                        }
+
                     });
 
                 }

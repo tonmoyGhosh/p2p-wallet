@@ -3,6 +3,8 @@
 - Clone app https://github.com/tonmoyGhosh/p2p-wallet.git
 - Run this commands.
     - composer install
+        - After run composer install, if occured php version issue then run -> composer install --ignore-platform-reqs
+    - php artisan key:generate
     - php artisan migrate
     - php artisan db:seed
     - php artisan passport:install
